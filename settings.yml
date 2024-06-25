@@ -1,0 +1,17 @@
+categories_toc_topics:
+  type: objects
+  default: []
+  schema:
+    name: category
+    identifier: category
+    properties:
+      category:
+        type: categories
+        required: true
+        validations:
+          max: 1
+      topic_id:
+        type: integer
+        required: true
+  description:
+    en: Categories in which the docs sidebar will be visible and the topics containing the contents displayed.
