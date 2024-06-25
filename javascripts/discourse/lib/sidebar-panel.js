@@ -2,7 +2,9 @@ import { cached } from "@glimmer/tracking";
 import { computed } from "@ember/object";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
 import BaseCustomSidebarSectionLink from "discourse/lib/sidebar/base-custom-sidebar-section-link";
+import DiscourseURL from "discourse/lib/url";
 import { getOwnerWithFallback } from "discourse-common/lib/get-owner";
+import { getAbsoluteURL, samePrefix } from "discourse-common/lib/get-url";
 import I18n from "discourse-i18n";
 import { SIDEBAR_DOCS_PANEL } from "../services/docs-sidebar";
 
@@ -85,10 +87,31 @@ function prepareDocsSection({ config, router, parent = null }) {
 class SidebarDocsSectionLink extends BaseCustomSidebarSectionLink {
   #data;
 
-  constructor({ data }) {
+  constructor({ data, router }) {
     super(...arguments);
 
     this.#data = data;
+    this._router = router;
+  }
+
+  @computed("_router.currentRoute", "href")
+  get active() {
+    if (DiscourseURL.isInternal(this.href) && samePrefix(this.href)) {
+      const topicRouteInfo = this._router
+        .recognize(this.href.replace(getAbsoluteURL("/"), "/"), "")
+        .find((v) => v.name === "topic");
+
+      const currentTopicRouteInfo = this._router.currentRoute.find(
+        (v) => v.name === "topic"
+      );
+
+      return (
+        currentTopicRouteInfo &&
+        currentTopicRouteInfo?.params?.id === topicRouteInfo?.params?.id
+      );
+    }
+
+    return false;
   }
 
   get name() {
@@ -96,7 +119,13 @@ class SidebarDocsSectionLink extends BaseCustomSidebarSectionLink {
   }
 
   get classNames() {
-    return "docs-sidebar-nav-link";
+    const list = ["docs-sidebar-nav-link"];
+
+    if (this.active) {
+      list.push("active");
+    }
+
+    return list.join(" ");
   }
 
   get href() {
