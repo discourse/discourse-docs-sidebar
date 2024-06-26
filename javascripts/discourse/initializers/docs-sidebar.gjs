@@ -1,6 +1,6 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
-import SidebarHeader from "../components/header";
-import DocsSidebarPanel from "../lib/sidebar-panel";
+import SidebarHeader from "../components/sidebar/docs-header";
+import DocsSidebarPanel from "../lib/docs-sidebar-panel";
 
 export default {
   name: "docs-sidebar",

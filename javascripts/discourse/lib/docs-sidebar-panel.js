@@ -95,10 +95,10 @@ class SidebarDocsSectionLink extends BaseCustomSidebarSectionLink {
     if (DiscourseURL.isInternal(this.href) && samePrefix(this.href)) {
       const topicRouteInfo = this._router
         .recognize(this.href.replace(getAbsoluteURL("/"), "/"), "")
-        .findBy("name", "topic");
+        .find((route) => route.name === "topic");
 
       const currentTopicRouteInfo = this._router.currentRoute.find(
-        (v) => v.name === "topic"
+        (route) => route.name === "topic"
       );
 
       return (

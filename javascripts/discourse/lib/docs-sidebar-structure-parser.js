@@ -2,10 +2,10 @@ import { SIDEBAR_DOCS_PANEL } from "../services/docs-sidebar";
 import { normalizeName } from "./utils";
 
 export function parseSidebarStructure(cookedHtml) {
-  return new SidebarStructureParser(cookedHtml).sectionsConfig;
+  return new DocsSidebarStructureParser(cookedHtml).sectionsConfig;
 }
 
-class SidebarStructureParser {
+class DocsSidebarStructureParser {
   #htmlDocument;
   #sections = [];
 
@@ -16,6 +16,10 @@ class SidebarStructureParser {
     );
 
     this.#build();
+  }
+
+  get sectionsConfig() {
+    return this.#sections;
   }
 
   #isHeading(element) {
@@ -83,9 +87,5 @@ class SidebarStructureParser {
         this.#addList(element);
       }
     }
-  }
-
-  get sectionsConfig() {
-    return this.#sections;
   }
 }

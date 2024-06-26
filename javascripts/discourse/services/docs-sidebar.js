@@ -2,7 +2,7 @@ import { tracked } from "@glimmer/tracking";
 import Service, { inject as service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { MAIN_PANEL } from "discourse/lib/sidebar/panels";
-import { parseSidebarStructure } from "../lib/cooked-html-parser";
+import { parseSidebarStructure } from "../lib/docs-sidebar-structure-parser";
 
 export const SIDEBAR_DOCS_PANEL = "discourse_sidebar_docs";
 

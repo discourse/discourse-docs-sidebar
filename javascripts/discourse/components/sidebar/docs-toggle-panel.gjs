@@ -3,7 +3,7 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 
-export default class TogglePanel extends Component {
+export default class DocsTogglePanel extends Component {
   @service docsSidebar;
 
   get label() {
