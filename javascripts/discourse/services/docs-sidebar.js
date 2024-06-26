@@ -1,5 +1,6 @@
 import { tracked } from "@glimmer/tracking";
 import Service, { inject as service } from "@ember/service";
+import { isEmpty } from "@ember/utils";
 import { ajax } from "discourse/lib/ajax";
 import { MAIN_PANEL } from "discourse/lib/sidebar/panels";
 import { parseSidebarStructure } from "../lib/docs-sidebar-structure-parser";
@@ -73,6 +74,12 @@ export default class DocsSidebarService extends Service {
     }
   }
 
+  disableDocsSidebar() {
+    this.hideDocsSidebar();
+    this._activeTopicId = null;
+    this._currentSectionsConfig = null;
+  }
+
   #findSettingsForActiveCategory() {
     let category = this.activeCategory;
 
@@ -135,8 +142,19 @@ export default class DocsSidebarService extends Service {
       }
 
       const sections = parseSidebarStructure(cookedHtml);
+
+      // the parser will return only sections with at least one link
+      // if none could be found, fallback to the default sidebar
+      if (isEmpty(sections)) {
+        this.disableDocsSidebar();
+        return;
+      }
+
       this.#contentCache.set(topic_id, sections);
       this._currentSectionsConfig = sections;
+    } catch (error) {
+      // if an error occurred while fetching the content, fallback to the default sidebar
+      this.disableDocsSidebar();
     } finally {
       this._loading = false;
     }

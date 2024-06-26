@@ -19,7 +19,8 @@ class DocsSidebarStructureParser {
   }
 
   get sectionsConfig() {
-    return this.#sections;
+    // return only sections with at least one valid link
+    return this.#sections.filter((section) => section.links.length > 0);
   }
 
   #isHeading(element) {
