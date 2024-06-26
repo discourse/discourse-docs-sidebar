@@ -1,31 +1,39 @@
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
-import BackToForum from "discourse/components/sidebar/back-to-forum";
 import Filter from "discourse/components/sidebar/filter";
-import ToggleAllSections from "discourse/components/sidebar/toggle-all-sections";
 import { getOwnerWithFallback } from "discourse-common/lib/get-owner";
+import ToggleAllSections from "./toggle-all-sections";
+import TogglePanel from "./toggle-panel";
 
 export default class SidebarHeader extends Component {
+  static shouldRender() {
+    return getOwnerWithFallback(this).lookup("service:docs-sidebar").isEnabled;
+  }
+
   @service docsSidebar;
   @service sidebarState;
-
-  static shouldRender() {
-    return getOwnerWithFallback(this).lookup("service:docs-sidebar").isVisible;
-  }
 
   get sections() {
     return this.sidebarState.currentPanel.sections;
   }
 
+  get shouldDisplayDocsUI() {
+    return this.docsSidebar.isVisible;
+  }
+
   <template>
-    <div class="sidebar-docs-header">
-      <div class="sidebar-docs-header__row">
-        <BackToForum />
-        <ToggleAllSections @sections={{this.sections}} />
+    <div class="docs-sidebar-header">
+      <div class="docs-sidebar-header__row">
+        <TogglePanel class="docs-sidebar-header__toggle-panel-btn" />
+        {{#if this.shouldDisplayDocsUI}}
+          <ToggleAllSections @sections={{this.sections}} />
+        {{/if}}
       </div>
-      <div class="sidebar-docs-header__row">
-        <Filter />
-      </div>
+      {{#if this.shouldDisplayDocsUI}}
+        <div class="docs-sidebar-header__row">
+          <Filter />
+        </div>
+      {{/if}}
     </div>
   </template>
 }

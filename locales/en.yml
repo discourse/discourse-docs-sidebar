@@ -1,3 +1,18 @@
 en:
   theme_metadata:
-    description: "TODO"
+    description: "Allows display an index of documents using the sidebar"
+    settings:
+      categories_toc_topics:
+        description: >
+          Specify the categories that will show a docs index in the sidebar.
+        schema:
+          properties:
+            category:
+              label: Category
+              description: The category that will display a docs sidebar
+            topic_id:
+              label: Topic ID
+              description: The id of the topic containing the index that will be displayed
+  toggle_panels:
+    docs: Show docs index
+    sidebar: Show sidebar

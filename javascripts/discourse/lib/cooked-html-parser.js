@@ -1,5 +1,8 @@
+import { SIDEBAR_DOCS_PANEL } from "../services/docs-sidebar";
+import { normalizeName } from "./utils";
+
 export function parseSidebarStructure(cookedHtml) {
-  return new SidebarStructureParser(cookedHtml).sections;
+  return new SidebarStructureParser(cookedHtml).sectionsConfig;
 }
 
 class SidebarStructureParser {
@@ -37,14 +40,14 @@ class SidebarStructureParser {
 
   #addSection(element) {
     this.#sections.push({
-      name: element.innerText,
+      name: `${SIDEBAR_DOCS_PANEL}-${normalizeName(element.innerText)}`,
       text: element.innerText,
       links: [],
     });
   }
 
   #addRootSection() {
-    this.#sections.push({ name: "root", links: [] });
+    this.#sections.push({ name: `${SIDEBAR_DOCS_PANEL}::root`, links: [] });
   }
 
   #addList(element) {
@@ -82,7 +85,7 @@ class SidebarStructureParser {
     }
   }
 
-  get sections() {
+  get sectionsConfig() {
     return this.#sections;
   }
 }

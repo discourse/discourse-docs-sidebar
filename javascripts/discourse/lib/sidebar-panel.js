@@ -7,6 +7,7 @@ import { getOwnerWithFallback } from "discourse-common/lib/get-owner";
 import { getAbsoluteURL, samePrefix } from "discourse-common/lib/get-url";
 import I18n from "discourse-i18n";
 import { SIDEBAR_DOCS_PANEL } from "../services/docs-sidebar";
+import { normalizeName } from "./utils";
 
 const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
   class DocsSidebarPanel extends BaseCustomSidebarPanel {
@@ -20,9 +21,8 @@ const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
     @cached
     get sections() {
       const router = getOwnerWithFallback(this).lookup("service:router");
-      const navConfig = this.docsSidebar.sections;
 
-      return navConfig.map((config) => {
+      return this.docsSidebar.sectionsConfig.map((config) => {
         return prepareDocsSection({ config, router });
       });
     }
@@ -34,7 +34,7 @@ const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
 
 export default sidebarPanelClassBuilder;
 
-function prepareDocsSection({ config, router, parent = null }) {
+function prepareDocsSection({ config, router }) {
   return class extends BaseCustomSidebarSection {
     #config = config;
 
@@ -43,11 +43,7 @@ function prepareDocsSection({ config, router, parent = null }) {
     }
 
     get name() {
-      const normalizedName = normalizeName(this.#config.name);
-
-      return parent
-        ? `${parent.name}__${normalizedName}`
-        : `${SIDEBAR_DOCS_PANEL}-${normalizedName}`;
+      return this.#config.name;
     }
 
     get title() {
@@ -146,17 +142,4 @@ class SidebarDocsSectionLink extends BaseCustomSidebarSectionLink {
       navigation: this.#data.text.toLowerCase().split(/\s+/g),
     };
   }
-}
-
-function normalizeName(name) {
-  return name
-    .normalize("NFD") // normalize the string to remove diacritics
-    .replace(
-      /[\u0300-\u036f]|\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu,
-      ""
-    ) // remove emojis and diacritics
-    .toLowerCase()
-    .replace(/\s|_+/g, "-") // replace spaces and underscores with dashes
-    .replace(/--+/g, "-") // replace multiple dashes with a single dash
-    .replace(/(^-+|-+$)/, ""); // remove trailing/leading dashes
 }

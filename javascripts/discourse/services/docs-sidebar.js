@@ -15,13 +15,32 @@ export default class DocsSidebarService extends Service {
   #contentCache = new Map();
 
   @tracked _activeTopicId;
-  @tracked _currentSections = null;
+  @tracked _currentSectionsConfig = null;
   @tracked _loading = false;
 
   constructor() {
     super(...arguments);
 
     this.appEvents.on("page:changed", this, this.#maybeForceDocsSidebar);
+  }
+
+  get activeCategory() {
+    return (
+      this.router.currentRoute?.attributes?.category ||
+      this.router.currentRoute?.parent?.attributes?.category
+    );
+  }
+
+  get allSectionsExpanded() {
+    return this.sectionsConfig?.every((sectionConfig) => {
+      return !this.sidebarState.collapsedSections.has(
+        `sidebar-section-${sectionConfig.name}-collapsed`
+      );
+    });
+  }
+
+  get isEnabled() {
+    return !!this._activeTopicId;
   }
 
   get isVisible() {
@@ -32,15 +51,26 @@ export default class DocsSidebarService extends Service {
     return this._loading;
   }
 
-  get activeCategory() {
-    return (
-      this.router.currentRoute?.attributes?.category ||
-      this.router.currentRoute?.parent?.attributes?.category
-    );
+  get sectionsConfig() {
+    return this._currentSectionsConfig || [];
   }
 
-  get sections() {
-    return this._currentSections || [];
+  hideDocsSidebar() {
+    this.sidebarState.setPanel(MAIN_PANEL);
+  }
+
+  showDocsSidebar() {
+    this.sidebarState.setPanel(SIDEBAR_DOCS_PANEL);
+    this.sidebarState.setSeparatedMode();
+    this.sidebarState.hideSwitchPanelButtons();
+  }
+
+  toggleSidebarPanel() {
+    if (this.isVisible) {
+      this.hideDocsSidebar();
+    } else {
+      this.showDocsSidebar();
+    }
   }
 
   #findSettingsForActiveCategory() {
@@ -72,21 +102,24 @@ export default class DocsSidebarService extends Service {
     this._activeTopicId = topic_id;
 
     if (!this._activeTopicId) {
-      this.sidebarState.setPanel(MAIN_PANEL);
+      this.hideDocsSidebar();
       return;
     }
 
-    this._currentSections = this.#contentCache.get(this._activeTopicId);
+    this._currentSectionsConfig = this.#contentCache.get(this._activeTopicId);
 
-    this.sidebarState.setPanel(SIDEBAR_DOCS_PANEL);
-    this.sidebarState.setSeparatedMode();
-    this.sidebarState.hideSwitchPanelButtons();
-
-    if (this._currentSections) {
+    if (this._currentSectionsConfig) {
+      this.showDocsSidebar();
       return;
     }
 
+    await this.#fetchTopicContent(topic_id);
+  }
+
+  async #fetchTopicContent(topic_id) {
     this._loading = true;
+    this.showDocsSidebar();
+
     try {
       // leverages the post stream API to fetch only the first post
       const data = await ajax(`/t/${topic_id}/posts.json`, {
@@ -103,7 +136,7 @@ export default class DocsSidebarService extends Service {
 
       const sections = parseSidebarStructure(cookedHtml);
       this.#contentCache.set(topic_id, sections);
-      this._currentSections = sections;
+      this._currentSectionsConfig = sections;
     } finally {
       this._loading = false;
     }
