@@ -13,23 +13,17 @@ export default class DocsHeader extends Component {
   @service docsSidebar;
   @service sidebarState;
 
-  get sections() {
-    return this.sidebarState.currentPanel.sections;
-  }
-
-  get shouldDisplayDocsUI() {
-    return this.docsSidebar.isVisible;
-  }
-
   <template>
     <div class="docs-sidebar-header">
       <div class="docs-sidebar-header__row">
         <DocsTogglePanel class="docs-sidebar-header__toggle-panel-btn" />
-        {{#if this.shouldDisplayDocsUI}}
-          <DocsToggleAllSections @sections={{this.sections}} />
+        {{#if this.docsSidebar.isVisible}}
+          <DocsToggleAllSections
+            @sections={{this.sidebarState.currentPanel.sections}}
+          />
         {{/if}}
       </div>
-      {{#if this.shouldDisplayDocsUI}}
+      {{#if this.docsSidebar.isVisible}}
         <div class="docs-sidebar-header__row">
           <Filter />
         </div>

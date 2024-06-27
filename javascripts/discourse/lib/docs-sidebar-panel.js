@@ -90,7 +90,6 @@ class SidebarDocsSectionLink extends BaseCustomSidebarSectionLink {
     this._router = router;
   }
 
-  @computed("_router.currentRoute", "href")
   get active() {
     if (DiscourseURL.isInternal(this.href) && samePrefix(this.href)) {
       const topicRouteInfo = this._router
