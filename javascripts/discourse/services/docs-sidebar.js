@@ -57,6 +57,10 @@ export default class DocsSidebarService extends Service {
   }
 
   hideDocsSidebar() {
+    if (!this.isVisible) {
+      return;
+    }
+
     this.sidebarState.setPanel(MAIN_PANEL);
   }
 
@@ -99,6 +103,11 @@ export default class DocsSidebarService extends Service {
 
   #maybeForceDocsSidebar() {
     const newActiveTopicId = this.#findSettingsForActiveCategory()?.topic_id;
+
+    if (!newActiveTopicId) {
+      this.disableDocsSidebar();
+      return;
+    }
 
     if (this._activeTopicId !== newActiveTopicId) {
       this.#setSidebarContent(newActiveTopicId);
