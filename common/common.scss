@@ -26,8 +26,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin: 0 var(--d-sidebar-row-horizontal-padding) 0
-    var(--d-sidebar-row-horizontal-padding);
+  margin: 0 var(--d-sidebar-row-horizontal-padding);
   color: var(--d-sidebar-link-color);
   width: calc(
     var(--d-sidebar-width) - 2 * var(--d-sidebar-row-horizontal-padding) + 2px
