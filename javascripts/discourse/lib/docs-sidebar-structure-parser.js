@@ -70,13 +70,29 @@ class DocsSidebarStructureParser {
       return;
     }
 
+    let text;
+
+    if (element.firstChild?.nodeType === Node.TEXT_NODE) {
+      const fcText = element.firstChild.textContent.trim();
+
+      if (fcText.endsWith(":")) {
+        text = fcText.slice(0, -1);
+      }
+    } else {
+      text = anchorElement.innerText.trim();
+    }
+
+    if (!text) {
+      return;
+    }
+
     if (!this.#currentSection) {
       this.#addRootSection();
     }
 
     this.#currentSection.links.push({
       href: anchorElement.href,
-      text: anchorElement.innerText,
+      text,
     });
   }
 
