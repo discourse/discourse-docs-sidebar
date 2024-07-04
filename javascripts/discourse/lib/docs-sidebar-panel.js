@@ -13,6 +13,7 @@ const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
   class DocsSidebarPanel extends BaseCustomSidebarPanel {
     key = SIDEBAR_DOCS_PANEL;
     hidden = true;
+    displayHeader = true;
 
     get docsSidebar() {
       return getOwnerWithFallback(this).lookup("service:docs-sidebar");
@@ -61,6 +62,7 @@ function prepareDocsSection({ config, router }) {
         (sectionLinkData) =>
           new SidebarDocsSectionLink({
             data: sectionLinkData,
+            panelName: this.name,
             router,
           })
       );
@@ -82,21 +84,24 @@ function prepareDocsSection({ config, router }) {
 
 class SidebarDocsSectionLink extends BaseCustomSidebarSectionLink {
   #data;
+  #panelName;
+  #router;
 
-  constructor({ data, router }) {
+  constructor({ data, panelName, router }) {
     super(...arguments);
 
     this.#data = data;
-    this._router = router;
+    this.#panelName = panelName;
+    this.#router = router;
   }
 
   get active() {
     if (DiscourseURL.isInternal(this.href) && samePrefix(this.href)) {
-      const topicRouteInfo = this._router
+      const topicRouteInfo = this.#router
         .recognize(this.href.replace(getAbsoluteURL("/"), "/"), "")
         .find((route) => route.name === "topic");
 
-      const currentTopicRouteInfo = this._router.currentRoute.find(
+      const currentTopicRouteInfo = this.#router.currentRoute.find(
         (route) => route.name === "topic"
       );
 
@@ -110,7 +115,7 @@ class SidebarDocsSectionLink extends BaseCustomSidebarSectionLink {
   }
 
   get name() {
-    return normalizeName(this.#data.text);
+    return `${this.#panelName}___${normalizeName(this.#data.text)}`;
   }
 
   get classNames() {

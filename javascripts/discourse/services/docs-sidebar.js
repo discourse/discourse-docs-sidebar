@@ -5,7 +5,7 @@ import { ajax } from "discourse/lib/ajax";
 import { MAIN_PANEL } from "discourse/lib/sidebar/panels";
 import { parseSidebarStructure } from "../lib/docs-sidebar-structure-parser";
 
-export const SIDEBAR_DOCS_PANEL = "discourse_sidebar_docs";
+export const SIDEBAR_DOCS_PANEL = "discourse-sidebar-docs";
 
 export default class DocsSidebarService extends Service {
   @service appEvents;
@@ -13,8 +13,9 @@ export default class DocsSidebarService extends Service {
   @service sidebarState;
   @service store;
 
-  #contentCache = new Map();
+  @tracked sidebarSettings = null;
 
+  #contentCache = new Map();
   @tracked _activeTopicId;
   @tracked _currentSectionsConfig = null;
   @tracked _loading = false;
@@ -23,6 +24,10 @@ export default class DocsSidebarService extends Service {
     super(...arguments);
 
     this.appEvents.on("page:changed", this, this.#maybeForceDocsSidebar);
+  }
+
+  setSettings(sidebarSettings) {
+    this.sidebarSettings = sidebarSettings;
   }
 
   get activeCategory() {
@@ -88,7 +93,7 @@ export default class DocsSidebarService extends Service {
     let category = this.activeCategory;
 
     while (category != null) {
-      const matchingSetting = settings.categories_toc_topics.find(
+      const matchingSetting = this.sidebarSettings?.categories?.find(
         // eslint-disable-next-line no-loop-func
         (setting) => setting.category[0] === category.id
       );

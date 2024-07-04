@@ -45,7 +45,7 @@ class DocsSidebarStructureParser {
 
   #addSection(element) {
     this.#sections.push({
-      name: `${SIDEBAR_DOCS_PANEL}-${normalizeName(element.innerText)}`,
+      name: `${SIDEBAR_DOCS_PANEL}__${normalizeName(element.innerText)}`,
       text: element.innerText,
       links: [],
     });
