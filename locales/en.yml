@@ -12,6 +12,3 @@ en:
             topic_id:
               label: "Topic ID"
               description: "The id of the topic containing the index that will be displayed"
-  toggle_panels:
-    docs: "Show docs index"
-    sidebar: "Show sidebar"
