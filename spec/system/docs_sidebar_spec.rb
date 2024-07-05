@@ -10,6 +10,12 @@ RSpec.describe "Docs Sidebar", system: true do
   end
   fab!(:post) { Fabricate(:post, topic: topic) }
   fab!(:documentation_category) { Fabricate(:category_with_definition) }
+  fab!(:documentation_subcategory) do
+    Fabricate(
+      :category_with_definition,
+      parent_category_id: documentation_category.id
+    )
+  end
   fab!(:documentation_topic) do
     t = Fabricate(:topic, category: documentation_category)
     Fabricate(:post, topic: t)
@@ -56,6 +62,7 @@ RSpec.describe "Docs Sidebar", system: true do
   end
 
   let(:sidebar) { PageObjects::Components::NavigationMenu::Sidebar.new }
+  let(:filter) { PageObjects::Components::Filter.new }
 
   def docs_section_name(title)
     "discourse-sidebar-docs__#{Slug.for(title)}"
@@ -124,6 +131,59 @@ RSpec.describe "Docs Sidebar", system: true do
 
       expect(sidebar).to be_visible
       expect_docs_sidebar_to_be_correct
+    end
+  end
+
+  context "when filtering" do
+    it "should suggest filtering the content when there are no results" do
+      SiteSetting.max_category_nesting = 3
+      documentation_subsubcategory =
+        Fabricate(
+          :category_with_definition,
+          parent_category_id: documentation_subcategory.id
+        )
+
+      visit("/c/#{documentation_category.slug}/#{documentation_category.id}")
+
+      filter.filter("ieeee")
+      expect(page).to have_no_css(".sidebar-section-link-content-text")
+      expect(page).to have_css(".sidebar-no-results")
+
+      no_results_description = page.find(".sidebar-no-results__description")
+      expect(no_results_description.text).to eq(
+        "We couldn’t find anything matching ‘ieeee’.\n\nDo you want to perform a search on this category or a site wide search instead?"
+      )
+
+      suggested_category_search =
+        page.find(".docs-sidebar-suggested-category-search")
+      expect(suggested_category_search[:href]).to end_with(
+        "/search?q=ieeee%20%23#{documentation_category.slug}"
+      )
+
+      site_wide_search = page.find(".docs-sidebar-suggested-site-search")
+      expect(site_wide_search[:href]).to end_with("/search?q=ieeee")
+
+      # for subcategories
+      visit(
+        "/c/#{documentation_category.slug}/#{documentation_subcategory.slug}/#{documentation_subcategory.id}"
+      )
+      filter.filter("ieeee")
+
+      suggested_category_search =
+        page.find(".docs-sidebar-suggested-category-search")
+      expect(suggested_category_search[:href]).to end_with(
+        "/search?q=ieeee%20%23#{documentation_category.slug}%3A#{documentation_subcategory.slug}"
+      )
+
+      # for 3 levels deep
+      visit("/c/#{documentation_subsubcategory.id}")
+      filter.filter("ieeee")
+
+      suggested_category_search =
+        page.find(".docs-sidebar-suggested-category-search")
+      expect(suggested_category_search[:href]).to end_with(
+        "/search?q=ieeee%20category%3A#{documentation_subsubcategory.id}"
+      )
     end
   end
 end

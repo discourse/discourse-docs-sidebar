@@ -1,10 +1,14 @@
 import { cached } from "@glimmer/tracking";
 import { computed } from "@ember/object";
+import { htmlSafe } from "@ember/template";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
 import BaseCustomSidebarSectionLink from "discourse/lib/sidebar/base-custom-sidebar-section-link";
 import DiscourseURL from "discourse/lib/url";
 import { getOwnerWithFallback } from "discourse-common/lib/get-owner";
-import { getAbsoluteURL, samePrefix } from "discourse-common/lib/get-url";
+import getURL, {
+  getAbsoluteURL,
+  samePrefix,
+} from "discourse-common/lib/get-url";
 import I18n from "discourse-i18n";
 import { SIDEBAR_DOCS_PANEL } from "../services/docs-sidebar";
 import { normalizeName } from "./utils";
@@ -30,6 +34,50 @@ const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
 
     get filterable() {
       return !this.docsSidebar.loading;
+    }
+
+    filterNoResultsDescription(filter) {
+      const active = this.docsSidebar.activeCategory;
+      let categoryFilter = "";
+
+      if (this.docsSidebar.activeCategory) {
+        categoryFilter =
+          " " +
+          (this.#assembleCategoryFilter("", active, 1) ??
+            `category:${active.id}`);
+      }
+
+      const params = {
+        filter,
+        content_search_url: getURL(
+          `/search?q=${encodeURIComponent(filter + categoryFilter)}`
+        ),
+        site_search_url: getURL(`/search?q=${encodeURIComponent(filter)}`),
+      };
+
+      return htmlSafe(
+        I18n.t(themePrefix("filter.no_results.description"), params)
+      );
+    }
+
+    #assembleCategoryFilter(filter, category, level) {
+      if (!category) {
+        return filter;
+      }
+
+      if (level > 2) {
+        return null;
+      }
+
+      if (category.parentCategory) {
+        return this.#assembleCategoryFilter(
+          ":" + category.slug,
+          category.parentCategory,
+          level + 1
+        );
+      } else {
+        return "#" + category.slug + filter;
+      }
     }
   };
 
