@@ -13,5 +13,3 @@ categories_toc_topics:
       topic_id:
         type: integer
         required: true
-  description:
-    en: Categories in which the docs sidebar will be visible and the topics containing the contents displayed.
