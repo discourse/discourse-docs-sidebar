@@ -4,6 +4,7 @@ import { htmlSafe } from "@ember/template";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
 import BaseCustomSidebarSectionLink from "discourse/lib/sidebar/base-custom-sidebar-section-link";
 import DiscourseURL from "discourse/lib/url";
+import { unicodeSlugify } from "discourse/lib/utilities";
 import { getOwnerWithFallback } from "discourse-common/lib/get-owner";
 import getURL, {
   getAbsoluteURL,
@@ -11,7 +12,6 @@ import getURL, {
 } from "discourse-common/lib/get-url";
 import I18n from "discourse-i18n";
 import { SIDEBAR_DOCS_PANEL } from "../services/docs-sidebar";
-import { normalizeName } from "./utils";
 
 const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
   class DocsSidebarPanel extends BaseCustomSidebarPanel {
@@ -163,7 +163,7 @@ class SidebarDocsSectionLink extends BaseCustomSidebarSectionLink {
   }
 
   get name() {
-    return `${this.#panelName}___${normalizeName(this.#data.text)}`;
+    return `${this.#panelName}___${unicodeSlugify(this.#data.text)}`;
   }
 
   get classNames() {

@@ -1,5 +1,5 @@
+import { unicodeSlugify } from "discourse/lib/utilities";
 import { SIDEBAR_DOCS_PANEL } from "../services/docs-sidebar";
-import { normalizeName } from "./utils";
 
 export function parseSidebarStructure(cookedHtml) {
   return new DocsSidebarStructureParser(cookedHtml).sectionsConfig;
@@ -45,7 +45,7 @@ class DocsSidebarStructureParser {
 
   #addSection(element) {
     this.#sections.push({
-      name: `${SIDEBAR_DOCS_PANEL}__${normalizeName(element.innerText)}`,
+      name: `${SIDEBAR_DOCS_PANEL}__${unicodeSlugify(element.innerText)}`,
       text: element.innerText,
       links: [],
     });
