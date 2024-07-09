@@ -4,7 +4,7 @@ import { htmlSafe } from "@ember/template";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
 import BaseCustomSidebarSectionLink from "discourse/lib/sidebar/base-custom-sidebar-section-link";
 import DiscourseURL from "discourse/lib/url";
-import { unicodeSlugify } from "discourse/lib/utilities";
+import { escapeExpression, unicodeSlugify } from "discourse/lib/utilities";
 import { getOwnerWithFallback } from "discourse-common/lib/get-owner";
 import getURL, {
   getAbsoluteURL,
@@ -48,7 +48,7 @@ const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
       }
 
       const params = {
-        filter,
+        filter: escapeExpression(filter),
         content_search_url: getURL(
           `/search?q=${encodeURIComponent(filter + categoryFilter)}`
         ),
