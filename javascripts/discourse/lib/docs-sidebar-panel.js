@@ -121,7 +121,7 @@ function prepareDocsSection({ config, router }) {
     }
 
     get hideSectionHeader() {
-      return this.#config.name === "root";
+      return this.#config.name === `${SIDEBAR_DOCS_PANEL}::root`;
     }
 
     get collapsedByDefault() {
